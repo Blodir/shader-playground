@@ -11,13 +11,20 @@ uniform float time;
 
 out vec4 fragColor;
 
+float repeatedSdf(vec3 p) {
+  float s = 1.;
+  vec3 r = p - s * round(p/s);
+  return sdSphere(r - vec3(0., 0., 1.5), 1.);
+}
+
 // distance to the scene
 float map(vec3 p) {
   float obj1 = sdSphere(p, 1.);
   float obj2 = sdOctahedronNe(p - vec3(3. * sin(M_PI * .0005 * time), 0., 0.), 1.);
+  return repeatedSdf(p);
   return min(
     //opSmoothUnion(obj1, obj2, 1.),
-    obj1,
+    repeatedSdf(p),
     sdPlane(p, vec3(0., 1., 0.), 1.)
   );
 }
@@ -70,8 +77,8 @@ void main() {
   vec3 lc = vec3(.5, .5, .5); // light color
   vec3 ambient = vec3(.05); // ambient light
   vec3 phong = clamp(dot(n, ld), 0., 1.) * lc;
-  float is = softShadowImproved(p, ld, .5, 100., 0.2); // point is in shadow
-  //float is = 1.;
+  //float is = softShadowImproved(p, ld, .5, 100., 0.2); // point is in shadow
+  float is = 1.;
   col = (phong + ambient) * la * is;
   // col = vec3(t * .2);
 
