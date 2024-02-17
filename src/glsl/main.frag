@@ -12,38 +12,49 @@ uniform float time;
 out vec4 fragColor;
 
 float repeatedSdf(vec3 p) {
-  float s = 1.;
-  vec3 r = p - s * round(p/s);
-  return sdSphere(r - vec3(0., 0., 1.5), 1.);
+  vec3 s = vec3(10.);
+  vec3 r = p - s * roundVec3(p/s);
+  r = vec3(r.x, r.y, p.z);
+  return sdSphere(r, .75);
+}
+
+float sdCylinderCross(vec3 p, float rad) {
+  vec2 origin = vec2(0., 0.);
+  float cylinder1 = sdCylinder(p, vec3(origin.x, origin.y, rad));
+  float cylinder2 = sdCylinder(rotateX(1.) * p, vec3(origin.x, origin.y, rad));
+  float cylinder3 = sdCylinder(rotateZ(1.) * p, vec3(origin.x, origin.y, rad));
+  return min(min(cylinder1, cylinder2), cylinder3);
+}
+
+float sdRecursiveShape(vec3 p) {
+  float cross = sdCylinderCross(p, 1.);
+  float box = sdBox(p, vec3(1., 1., 1.)) - .1;
+  return min(box, cross);
+}
+
+float sdRecursiveShape2(vec3 p) {
+  vec3 q = p;
+  float r = 1e20;
+  for (int i = 1; i <= 20; i++) {
+    float s = 1. / float(i);
+    float box = sdBox(q, vec3(s)) - .1 * s;
+    float rot = sin(float(i) * M_PI * .15);
+    r = min(box, r);
+    q = q - s * normalize(
+        rotateX(rot)
+      * rotateY(rot)
+      * rotateZ(rot)
+      * vec3(0., 1., 0.));
+  }
+  return r;
 }
 
 // distance to the scene
 float map(vec3 p) {
-  float obj1 = sdSphere(p, 1.);
-  float obj2 = sdOctahedronNe(p - vec3(3. * sin(M_PI * .0005 * time), 0., 0.), 1.);
-  return repeatedSdf(p);
-  return min(
-    //opSmoothUnion(obj1, obj2, 1.),
-    repeatedSdf(p),
-    sdPlane(p, vec3(0., 1., 0.), 1.)
-  );
-}
-
-// normal approximation based on finite difference method
-// uses the map function SDF
-vec3 getFDNormal(vec3 p) {
-  float d = map(p);
-  float epsilon = 0.001; // A small value
-  vec2 e = vec2(epsilon, 0.0);
-
-  // Gradient calculation using central difference
-  vec3 normal = normalize(vec3(
-    d - map(p - e.xyy),
-    d - map(p - e.yxy),
-    d - map(p - e.yyx)
-  ));
-
-  return normal;
+  // float ground = sdPlane(p, vec3(0., 1., 0.), 1.);
+  // float obj1 = sdRecursiveShape(p - vec3(2., -2., 10.));
+  float obj2 = sdRecursiveShape2(p - vec3(2., -2., 2.));
+  return obj2;
 }
 
 #include ray-marching.glsl;
@@ -77,10 +88,9 @@ void main() {
   vec3 lc = vec3(.5, .5, .5); // light color
   vec3 ambient = vec3(.05); // ambient light
   vec3 phong = clamp(dot(n, ld), 0., 1.) * lc;
-  //float is = softShadowImproved(p, ld, .5, 100., 0.2); // point is in shadow
-  float is = 1.;
+  float is = softShadowImproved(p, ld, .5, 100., 0.2); // point is in shadow
   col = (phong + ambient) * la * is;
-  // col = vec3(t * .2);
+  //col = vec3(t * .2);
 
   fragColor = vec4(col, 1);
 }

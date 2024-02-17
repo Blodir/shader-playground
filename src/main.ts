@@ -1,7 +1,7 @@
 import './style.css'
 import { createProgram, createShader } from './webgl-utils';
 import vertex from './glsl/main.vert';
-import fragment from './glsl/main.frag';
+import fragment from './glsl/100224.frag';
 
 const init = () => {
   const canvas: HTMLCanvasElement | null = document.querySelector('#webgl-canvas');

@@ -22,6 +22,10 @@ float sdOctahedronNe(vec3 p, float s) {
   return (p.x+p.y+p.z-s)*0.57735027;
 }
 
+float sdCylinder(vec3 p, vec3 c) {
+  return length(p.xz-c.xy) - c.z;
+}
+
 float opUnion(float d1, float d2) {
   return min(d1, d2);
 }
@@ -50,5 +54,35 @@ float myRound(float value) {
 
 vec3 roundVec3(vec3 v) {
   return vec3(myRound(v.x), myRound(v.y), myRound(v.z));
+}
+
+mat3 rotateX(float angle) {
+  float c = cos(angle);
+  float s = sin(angle);
+  return mat3(
+    1.0, 0.0, 0.0,
+    0.0,   c,  -s,
+    0.0,   s,   c
+  );
+}
+
+mat3 rotateY(float angle) {
+  float c = cos(angle);
+  float s = sin(angle);
+  return mat3(
+    c, 0.0, s,
+    0.0, 1.0, 0.0,
+   -s, 0.0, c
+  );
+}
+
+mat3 rotateZ(float angle) {
+  float c = cos(angle);
+  float s = sin(angle);
+  return mat3(
+     c, -s, 0.0,
+     s,  c, 0.0,
+    0.0, 0.0, 1.0
+  );
 }
 

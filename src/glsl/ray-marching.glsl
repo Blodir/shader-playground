@@ -1,5 +1,7 @@
 precision mediump float;
 
+// Requires "map" function to be defined.
+
 // -------------------- //
 // Shadows              //
 // -------------------- //
@@ -54,5 +56,22 @@ float softShadowImproved(in vec3 ro, in vec3 rd, float mint, float maxt, float w
     t += h;
   }
   return res;
+}
+
+// normal approximation based on finite difference method
+// uses the map function SDF
+vec3 getFDNormal(vec3 p) {
+  float d = map(p);
+  float epsilon = 0.001; // A small value
+  vec2 e = vec2(epsilon, 0.0);
+
+  // Gradient calculation using central difference
+  vec3 normal = normalize(vec3(
+    d - map(p - e.xyy),
+    d - map(p - e.yxy),
+    d - map(p - e.yyx)
+  ));
+
+  return normal;
 }
 
