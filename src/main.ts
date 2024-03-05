@@ -1,7 +1,7 @@
 import './style.css'
 import { createProgram, createShader } from './webgl-utils';
 import vertex from './glsl/main.vert';
-import fragment from './glsl/270224.frag';
+import fragment from './glsl/040324.frag';
 
 const init = () => {
   const canvas: HTMLCanvasElement | null = document.querySelector('#webgl-canvas');
@@ -53,12 +53,12 @@ const init = () => {
   resizeObserver.observe(canvas);
 
   // render just once for now...
-  let count = 0;
+  //let count = 0;
   const f = (time: DOMHighResTimeStamp) => {
     gl.uniform1f(timeLocation, time);
     draw(gl)
-    if (count === 0) { requestAnimationFrame(f); count++; }
-    //requestAnimationFrame(f);
+    //if (count === 0) { requestAnimationFrame(f); count++; }
+    requestAnimationFrame(f);
   };
 
   requestAnimationFrame(f);

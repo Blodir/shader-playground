@@ -130,4 +130,3 @@ float voronoi3(vec3 p) {
   return minDist;
 }
 
-
