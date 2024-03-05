@@ -74,7 +74,7 @@ vec3 marchClouds(vec2 uv) {
 
   float stepSize = (t1 - t0) / float(stepCount); // distance covered by one ray marching step
   vec3 totalInScattering = vec3(0.);
-  vec3 transmission = vec3(1.);
+  float transmission = 1.;
 
   // offset by stepSize/2
   for (float t = t0 + (stepSize / 2.); t < t1; t += stepSize) {
