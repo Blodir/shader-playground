@@ -52,12 +52,19 @@ const init = () => {
   );
   resizeObserver.observe(canvas);
 
+  const fpsElem = document.querySelector('#fps');
+  let lastTimeStamp = performance.now();
+
   // render just once for now...
   //let count = 0;
   const f = (time: DOMHighResTimeStamp) => {
     gl.uniform1f(timeLocation, time);
     draw(gl)
     //if (count === 0) { requestAnimationFrame(f); count++; }
+    const timeDiffSec = (time - lastTimeStamp) / 1000;
+    lastTimeStamp = time;
+    if (fpsElem) { fpsElem.innerHTML = `fps: ${Math.round(1 / timeDiffSec)}`; }
+
     requestAnimationFrame(f);
   };
 

@@ -83,18 +83,18 @@ vec3 marchClouds(vec2 uv) {
     float density = vdf(p);
     transmission *= exp(-stepSize * density * sigma_t);
 
-    // inscattering
-    float inScatteringTransmission = 1.;
+    float inScatteringDensity = 0.;
     float inScatteringDistance = (cloudMaxY - p.y) / (-lightDirection.y);
     float inScatteringStepSize = inScatteringDistance / float(inScatteringTransmissionStepCount);
     for (float t2 = inScatteringStepSize / 2.; t2 < inScatteringDistance; t2 += inScatteringStepSize) {
-      inScatteringTransmission *= exp(-vdf(p + t2 * (-lightDirection)) * inScatteringStepSize * sigma_t);
+      inScatteringDensity += -vdf(p + t2 * (-lightDirection));
     }
+    float inScattering = exp(inScatteringDensity * inScatteringDistance * sigma_t) * sigma_s;
 
     float cosTheta = dot(rd, (-lightDirection));
-    totalInScattering += lightColor * transmission * inScatteringTransmission * sigma_s * phase(phaseAsymmetry, cosTheta) * density * stepSize;
+    totalInScattering += lightColor * transmission * inScattering * phase(phaseAsymmetry, cosTheta) * density * stepSize;
 
-    if (length(transmission) < .001) {
+    if (transmission < .001) {
       break;
     }
   }
